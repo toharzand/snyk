@@ -236,6 +236,10 @@ interface Issue {
   fixInfo: FixInfo;
 }
 
+export interface DepsFilePaths {
+  [pkgKey: string]: string[];
+}
+
 export interface TestDependenciesResult {
   issuesData: {
     [issueId: string]: IssueData;
@@ -248,6 +252,7 @@ export interface TestDependenciesResult {
   };
   remediation?: RemediationChanges;
   depGraphData: depGraphLib.DepGraphData;
+  depsFilePaths?: DepsFilePaths;
 }
 
 export interface TestDepGraphMeta {

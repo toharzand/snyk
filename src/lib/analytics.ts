@@ -66,10 +66,6 @@ export function postAnalytics(
 ): Promise<void | { res: needle.NeedleResponse; body: any }> {
   // if the user opt'ed out of analytics, then let's bail out early
   // ths applies to all sending to protect user's privacy
-  if (!allowAnalytics()) {
-    debug('analytics disabled');
-    return Promise.resolve();
-  }
 
   const isStandalone = version.isStandaloneBuild();
 
