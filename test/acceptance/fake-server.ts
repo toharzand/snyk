@@ -9,6 +9,10 @@ interface FakeServer extends restify.Server {
   setNextResponse: (r: any) => void;
   setNextStatusCodeAndResponse: (c: number, r: any) => void;
   clearRequests: () => void;
+  depGraphResponse: any | undefined;
+  restoreDefaults: () => void;
+  _featureFlags: Map<string, boolean>;
+  setFeatureFlag: (featureFlag, enabled) => void;
 }
 
 export function fakeServer(root, apikey) {
@@ -16,6 +20,12 @@ export function fakeServer(root, apikey) {
     name: 'snyk-mock-server',
     version: '1.0.0',
   }) as FakeServer;
+
+  const featureFlagDefaults = (): Map<string, boolean> => {
+    return new Map([['cliFailFast', false]]);
+  };
+  server._featureFlags = featureFlagDefaults();
+
   server._reqLog = [];
   server.popRequest = () => {
     return server._reqLog.pop()!;
@@ -66,6 +76,7 @@ export function fakeServer(root, apikey) {
         req.url.includes('/feature-flags/experimentalLocalExecIac'));
     if (
       isExperimentalIac ||
+      req.url?.includes('/cli-config/feature-flags/') ||
       (!server._nextResponse && !server._nextStatusCode)
     ) {
       return next();
@@ -122,6 +133,11 @@ export function fakeServer(root, apikey) {
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
+      return next();
+    }
+
+    if (server.depGraphResponse) {
+      res.send(server.depGraphResponse);
       return next();
     }
 
@@ -297,6 +313,23 @@ export function fakeServer(root, apikey) {
         });
         return next();
       }
+
+      if (server._featureFlags.has(flag)) {
+        const ffEnabled = server._featureFlags.get(flag);
+        if (ffEnabled) {
+          res.send({
+            ok: true,
+          });
+        } else {
+          res.send({
+            ok: false,
+            userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+          });
+        }
+        return next();
+      }
+
+      // default: return true for all feature flags
       res.send({
         ok: true,
       });
@@ -361,6 +394,15 @@ export function fakeServer(root, apikey) {
   server.setNextStatusCodeAndResponse = (code, body) => {
     server._nextStatusCode = code;
     server._nextResponse = body;
+  };
+
+  server.setFeatureFlag = (featureFlag, enabled) => {
+    server._featureFlags.set(featureFlag, enabled);
+  };
+
+  server.restoreDefaults = () => {
+    server.depGraphResponse = undefined;
+    server._featureFlags = featureFlagDefaults();
   };
 
   return server;

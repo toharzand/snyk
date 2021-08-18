@@ -9,6 +9,8 @@ import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import { IacScan } from './payload-schema';
 import * as Queue from 'promise-queue';
+import { EOL } from 'os';
+import { isFeatureFlagSupportedForOrg } from '../../lib/feature-flags';
 
 import {
   AffectedPackages,
@@ -565,17 +567,34 @@ async function assembleLocalPayloads(
     if (options.iac) {
       return assembleIacLocalPayloads(root, options);
     }
+
+    const cliFailFast = await isFeatureFlagSupportedForOrg(
+      'cliFailFast',
+      options.org,
+    );
+
     const deps = await getDepsFromPlugin(root, options);
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
       if (!options.json && !options.quiet) {
+        const errorMessage = failedResults.map((f) => f.errMessage).join(EOL);
+        console.error(errorMessage);
         console.warn(
           chalk.bold.red(
             `${icon.ISSUE} ${failedResults.length}/${failedResults.length +
               deps.scannedProjects
                 .length} potential projects failed to get dependencies. Run with \`-d\` for debug output.`,
           ),
+        );
+      }
+      debug(
+        'getDepsFromPlugin returned failed results, cannot run test/monitor',
+        failedResults,
+      );
+      if (cliFailFast.ok) {
+        throw new FailedToRunTestError(
+          'Your test request could not be completed. Please email support@snyk.io',
         );
       }
     }

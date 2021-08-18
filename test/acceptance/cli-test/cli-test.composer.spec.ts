@@ -177,34 +177,38 @@ export const ComposerTests: AcceptanceTests = {
         org: 'test-org',
       });
       // assert three API calls made, each with a different url
-      const reqs = Array.from({ length: 3 }).map(() =>
+      const reqs = Array.from({ length: 6 }).map(() =>
         params.server.popRequest(),
       );
 
       t.same(
-        reqs.map((r) => r.method),
+        reqs
+          .filter((r) => r.url === '/api/v1/test-dep-graph?org=test-org')
+          .map((r) => r.method),
         ['POST', 'POST', 'POST'],
         'all post requests',
       );
 
       t.same(
-        reqs.map((r) => r.headers['x-snyk-cli-version']),
+        reqs
+          .filter((r) => r.url === '/api/v1/test-dep-graph?org=test-org')
+          .map((r) => r.headers['x-snyk-cli-version']),
         [params.versionNumber, params.versionNumber, params.versionNumber],
         'all send version number',
       );
 
-      t.same(
-        reqs.map((r) => r.url),
-        [
-          '/api/v1/test-dep-graph?org=test-org',
-          '/api/v1/test-dep-graph?org=test-org',
-          '/api/v1/test-dep-graph?org=test-org',
-        ],
+      t.equal(
+        reqs.filter((r) => r.url === '/api/v1/test-dep-graph?org=test-org')
+          .length,
+        3,
         'all urls are present',
       );
 
       t.same(
-        reqs.map((r) => r.body.depGraph.pkgManager.name).sort(),
+        reqs
+          .filter((r) => r.url === '/api/v1/test-dep-graph?org=test-org')
+          .map((r) => r.body.depGraph.pkgManager.name)
+          .sort(),
         ['composer', 'golangdep', 'nuget'],
         'all urls are present',
       );
