@@ -194,7 +194,6 @@
       "config.default.json",
       "test-unpublished.json",
       "help/**/*.txt",
-      "dist/STANDALONE",
       "node_modules/@deepcode/dcignore"
     ]
   },
