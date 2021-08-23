@@ -23,7 +23,7 @@
               Will limit search to provided directory (or current directory if
               no [4mP[0m[4mA[0m[4mT[0m[4mH[0m provided) plus two levels of subdirectories.
 
-       [1m-[0m[1m-[0m[1ms[0m[1me[0m[1mv[0m[1me[0m[1mr[0m[1mi[0m[1mt[0m[1my[0m[1m-[0m[1mt[0m[1mh[0m[1mr[0m[1me[0m[1ms[0m[1mh[0m[1mo[0m[1ml[0m[1md[0m=low|medium|high
+       [1m-[0m[1m-[0m[1ms[0m[1me[0m[1mv[0m[1me[0m[1mr[0m[1mi[0m[1mt[0m[1my[0m[1m-[0m[1mt[0m[1mh[0m[1mr[0m[1me[0m[1ms[0m[1mh[0m[1mo[0m[1ml[0m[1md[0m=low|medium|high|critical
               Only report vulnerabilities of provided level or higher.
 
        [1m-[0m[1m-[0m[1mi[0m[1mg[0m[1mn[0m[1mo[0m[1mr[0m[1me[0m[1m-[0m[1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m
